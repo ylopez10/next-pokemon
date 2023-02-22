@@ -97,7 +97,7 @@ const PagePokemonbyName: NextPage<Props> = ({pokemon}) =>{
   </Layout>
 }
 
-export const getStaticPaths: GetStaticPaths<Params> = async () => {
+export async function  getStaticPaths () {
 
   const {data} = await pokemones.get<PokemonListResponse>('/pokemon?limit=151')
 
