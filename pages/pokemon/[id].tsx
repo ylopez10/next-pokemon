@@ -4,8 +4,9 @@ import { Button, Card, Container, Grid, Image, Text } from "@nextui-org/react"
 import confetti from 'canvas-confetti'
 import { PokemonFull } from "@/interfaces"
 import { Layout } from "@/components/layouts"
-import { pokemones } from "@/services"
 import { exisInFovorites, getPokemonInfo, tootgleFavorite } from "@/utils"
+import HeartLikeIcon from 'mdi-react/HeartIcon'
+import HeratNotLikeIcon from 'mdi-react/HeartBrokenIcon'
 
 
 interface Props{
@@ -50,9 +51,14 @@ const PagePokemon: NextPage<Props> = ({pokemon}) =>{
       <Grid xs={12} sm={8}>
         <Card>
           <Card.Header css={{ display: 'flex', justifyContent: 'space-between'}}>
-            <Text h1 transform="capitalize">{pokemon.name}</Text>
-            <Button color="gradient" ghost={isFavorite} onPress={ onToogleFavorite }>              
-              {isFavorite? 'En favorito' : 'Guardar en favoritos'}
+            <Text h3 transform="capitalize">{pokemon.name}</Text>
+            <Button 
+            color="gradient" 
+            ghost={isFavorite} 
+            onPress={ onToogleFavorite }
+            icon={ isFavorite? <HeratNotLikeIcon /> : <HeartLikeIcon />}
+            auto>              
+              {isFavorite? 'No me gusta' : 'Me gusta'}
             </Button>
           </Card.Header>
 
@@ -100,18 +106,30 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     paths: pokemones.map( id =>({
       params: { id }
     })),
-    fallback: false
+    fallback: 'blocking'
   }
 }
 
 export const getStaticProps: GetStaticProps = async({params}) =>{
 
   const { id } = params as { id: string }
+
+  const pokemon = await getPokemonInfo(id)
+
+  if(!pokemon){
+    return{
+      redirect: {
+        destination: '/',
+        permanent: false     
+      }
+    }
+  }
   
   return {
     props: {
-      pokemon: await getPokemonInfo(id)
-    }
+      pokemon
+    },
+    revalidate: 86400
   }
 
 }
